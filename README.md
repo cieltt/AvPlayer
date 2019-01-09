@@ -1,2 +1,2 @@
-# avplayer
+# AvPlayer
 a player with ffmpeg
