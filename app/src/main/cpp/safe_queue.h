@@ -8,7 +8,7 @@
 #include <queue>
 #include <pthread.h>
 
-
+#include "macro.h"
 //todo 是否使用c++11,玩玩而已。还是习惯posix标准的线程。。。。
 //#define C11
 #ifdef C11
@@ -17,7 +17,6 @@
 
 
 using namespace std;
-
 
 
 template<typename T>
@@ -46,7 +45,8 @@ public:
 
     }
 
-    void enQueue(const T new_value) {
+
+    void enQueue( T new_value) {
 #ifdef C11
         lock_guard<mutex> lk(mt);
         if (work) {
@@ -59,6 +59,9 @@ public:
             q.push(new_value);
             pthread_cond_signal(&cond);
             pthread_mutex_unlock(&mutex);
+        } else {
+            LOGE("无法加入数据====:%d",q.size());
+            releaseHandle(new_value);
         }
         pthread_mutex_unlock(&mutex);
 #endif
@@ -66,7 +69,7 @@ public:
     }
 
 
-    int deQueue(T& value) {
+    int deQueue(T &value) {
         int ret = 0;
 #ifdef C11
         //占用空间相对lock_guard 更大一点且相对更慢一点，但是配合条件必须使用它，更灵活
@@ -79,7 +82,6 @@ public:
             ret = 1;
         }
 #else
-
         pthread_mutex_lock(&mutex);
         //在多核处理器下 由于竞争可能虚假唤醒 包括jdk也说明了
         while (work && q.empty()) {
@@ -134,6 +136,7 @@ public:
             releaseHandle(value);
             q.pop();
         }
+        LOGE("清空数据====:%d",q.size());
         pthread_mutex_unlock(&mutex);
 #endif
 

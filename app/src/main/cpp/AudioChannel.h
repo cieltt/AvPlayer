@@ -18,7 +18,8 @@ extern "C" {
 
 class AudioChannel : public BaseChannel {
 public:
-    AudioChannel(int id,AVCodecContext *avCodecContext, AVRational base);
+    AudioChannel(int id, JavaCallHelper *javaCallHelper, AVCodecContext *avCodecContext,
+                 AVRational base);
 
     virtual ~AudioChannel();
 
@@ -28,33 +29,35 @@ public:
 
     void initOpenSL();
 
+    void decode();
+
     void releaseOpenSL();
 
-    int decodePcm();
+    int getPcm();
 
 
 private:
     pthread_t pid_audio_play;
-
+    pthread_t pid_audio_decode;
     /**
      * opensl es
      */
     SLObjectItf engineObject = NULL;
-    SLEngineItf engineEngine = NULL;
+    SLEngineItf engineInterface = NULL;
 
     //混音器
     SLObjectItf outputMixObject = NULL;
-    SLEnvironmentalReverbItf outputMixEnvironmentalReverb = NULL;
 
-    //
+    //播放器
     SLObjectItf bqPlayerObject = NULL;
-    SLPlayItf bqPlayerPlay = NULL;
+    SLPlayItf bqPlayerInterface = NULL;
     SLAndroidSimpleBufferQueueItf bqPlayerBufferQueue = NULL;
 
 
     SwrContext *swr_ctx = NULL;
     int out_channels;
     int out_samplesize;
+    int out_sample_rate;
 public:
     uint8_t *buffer;
 

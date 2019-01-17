@@ -1,6 +1,7 @@
 package com.example.ciel.AvPlayer;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -50,6 +51,7 @@ public class LiveAdapter extends RecyclerView.Adapter<LiveAdapter.MyHolder> impl
         Glide.with(myHolder.picture).load(items.getPictures().getImg()).into(myHolder.picture);
         //设置标签
         myHolder.itemView.setTag(items.getId());
+        myHolder.itemView.setTag(R.id.data,i);
     }
 
     @Override
@@ -79,12 +81,12 @@ public class LiveAdapter extends RecyclerView.Adapter<LiveAdapter.MyHolder> impl
     @Override
     public void onClick(View v) {
         if (mItemClickListener != null) {
-            mItemClickListener.onItemClick((String) v.getTag());
+            mItemClickListener.onItemClick(v);
         }
     }
 
     public interface OnItemClickListener {
-        void onItemClick(String id);
+        void onItemClick(View view);
     }
 
 

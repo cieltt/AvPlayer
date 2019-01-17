@@ -1,11 +1,8 @@
 package com.example.ciel.AvPlayer.player;
 
-import android.media.MediaPlayer;
-import android.text.TextUtils;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.view.TextureView;
 
 /**
  * @author Lance
@@ -23,6 +20,8 @@ public class DNPlayer implements SurfaceHolder.Callback {
     private OnPrepareListener onPrepareListener;
     private SurfaceHolder surfaceHolder;
     private OnErrorListener onErrorListener;
+    private OnProgressListener onProgressListener;
+
 
     public void setDataSource(String dataSource) {
         this.dataSource = dataSource;
@@ -44,6 +43,7 @@ public class DNPlayer implements SurfaceHolder.Callback {
 
 
     public void onError(int errorCode) {
+        stop();
         if (null != onErrorListener) {
             onErrorListener.onError(errorCode);
         }
@@ -55,6 +55,16 @@ public class DNPlayer implements SurfaceHolder.Callback {
         }
     }
 
+    /**
+     * native 回调给java 播放进去的
+     * @param progress
+     */
+    public void onProgress(int progress) {
+        if (null != onProgressListener) {
+            onProgressListener.onProgress(progress);
+        }
+    }
+
     public void start() {
         native_start();
     }
@@ -63,9 +73,26 @@ public class DNPlayer implements SurfaceHolder.Callback {
         native_stop();
     }
 
+    public int getDuration() {
+        return native_getDuration();
+    }
+
+    public void seek(final int progress) {
+        new Thread() {
+            @Override
+            public void run() {
+                native_seek(progress);
+            }
+        }.start();
+    }
+
     public void release() {
+        if (null != this.surfaceHolder) {
+            this.surfaceHolder.removeCallback(this);
+        }
         native_release();
     }
+
 
     private native void native_start();
 
@@ -77,6 +104,9 @@ public class DNPlayer implements SurfaceHolder.Callback {
 
     private native void native_release();
 
+    private native int native_getDuration();
+
+    private native void native_seek(int progress);
 
     public void setOnPrepareListener(OnPrepareListener onPrepareListener) {
         this.onPrepareListener = onPrepareListener;
@@ -84,6 +114,10 @@ public class DNPlayer implements SurfaceHolder.Callback {
 
     public void setOnErrorListener(OnErrorListener onErrorListener) {
         this.onErrorListener = onErrorListener;
+    }
+
+    public void setOnProgressListener(OnProgressListener onProgressListener) {
+        this.onProgressListener = onProgressListener;
     }
 
     @Override
@@ -98,7 +132,7 @@ public class DNPlayer implements SurfaceHolder.Callback {
 
     @Override
     public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
-        System.out.println("========================================== destory");
+
     }
 
 
@@ -108,5 +142,9 @@ public class DNPlayer implements SurfaceHolder.Callback {
 
     public interface OnErrorListener {
         void onError(int error);
+    }
+
+    public interface OnProgressListener {
+        void onProgress(int progress);
     }
 }

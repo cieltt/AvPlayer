@@ -6,6 +6,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 
 import com.dongnao.live.LiveManager;
 import com.dongnao.live.list.LiveList;
@@ -44,8 +45,6 @@ public class MainActivity extends RxAppCompatActivity implements TabLayout
         tabLayout.addOnTabSelectedListener(this);
         //添加标签
         addTabs();
-
-
     }
 
     private void addTabs() {
@@ -112,7 +111,9 @@ public class MainActivity extends RxAppCompatActivity implements TabLayout
     }
 
     @Override
-    public void onItemClick(String id) {
+    public void onItemClick(View view) {
+        String id = (String)view.getTag();
+        final int position = (Integer) view.getTag(R.id.data);
         LiveManager.getInstance()
                 .getLiveRoom(id)
                 .compose(this.<Room>bindUntilEvent(ActivityEvent.DESTROY))
@@ -124,14 +125,23 @@ public class MainActivity extends RxAppCompatActivity implements TabLayout
                     @Override
                     public void onNext(Room room) {
                         Videoinfo info = room.getData().getInfo().getVideoinfo();
+                        String[] plflags = info.getPlflag().split("_");
                         String room_key = info.getRoom_key();
                         String sign = info.getSign();
                         String ts = info.getTs();
                         Intent intent = new Intent(MainActivity.this, PlayActivity.class);
-                        intent.putExtra("url", "http://pl3.live.panda.tv/live_panda/" + room_key
+                        String v = "3";
+                        if (null != plflags && plflags.length > 0) {
+                            v = plflags[plflags.length - 1];
+                        }
+                        intent.putExtra("url", "http://pl" + v + ".live" +
+                                ".panda.tv/live_panda/" + room_key
                                 + "_mid" +
                                 ".flv?sign=" + sign +
                                 "&time=" + ts);
+                        if(position == 0){
+                            intent.putExtra("local",true);
+                        }
                         startActivity(intent);
                     }
 

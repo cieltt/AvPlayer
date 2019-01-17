@@ -16,7 +16,7 @@ typedef void (*RenderFrame)(uint8_t *, int, int, int);
 
 class VideoChannel : public BaseChannel {
 public:
-    VideoChannel(int id, AVCodecContext *avCodecContext, AVRational base, int fps);
+    VideoChannel(int id,JavaCallHelper *javaCallHelper, AVCodecContext *avCodecContext, AVRational base, int fps);
 
     virtual ~VideoChannel();
 
@@ -28,9 +28,6 @@ public:
 
     void synchronizeFrame();
 
-//    double synchronize(AVFrame *frame, double pts);
-
-
     void setRenderCallback(RenderFrame renderFrame);
 
 public:
@@ -39,7 +36,6 @@ private:
     int fps;
     pthread_t pid_video_play;
     pthread_t pid_synchronize;
-    SafeQueue<AVFrame *> frame_queue;
     RenderFrame renderFrame;
 };
 

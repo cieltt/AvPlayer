@@ -22,12 +22,16 @@ public:
 
     void onParpare(int thread);
 
+    void onProgress(int thread, int progress);
+
 public:
     JavaVM *javaVM;
     JNIEnv *env;
     jobject jobj;
     jmethodID jmid_error;
     jmethodID jmid_prepare;
+    jmethodID jmid_progress;
+
 
 };
 

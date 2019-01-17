@@ -13,5 +13,12 @@
         android:layout_height="match_parent"
         />
 
+    <SeekBar
+        android:visibility="gone"
+        android:id="@+id/seekBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:max="100"/>
 
 </RelativeLayout>

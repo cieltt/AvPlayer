@@ -21,6 +21,7 @@ extern "C" {
 
 
 class DNFFmpeg {
+    friend void* async_stop(void* args);
 public:
     DNFFmpeg(JavaCallHelper *javaCallHelper, const char *dataSource);
 
@@ -38,9 +39,11 @@ public:
 
     void stop();
 
-    uint64_t getDuration() {
+    int getDuration() {
         return duration;
     }
+
+    void seek(int i);
 
 private:
     char *url;
@@ -48,9 +51,12 @@ private:
 
     pthread_t pid_prepare;
     pthread_t pid_play;
-    AVFormatContext *formatContext;
+    pthread_t pid_stop;
 
-    int64_t duration;
+    pthread_mutex_t seekMutex;
+    AVFormatContext *formatContext = 0;
+
+    int duration;
 
     RenderFrame renderFrame;
 
@@ -58,6 +64,7 @@ private:
     VideoChannel *videoChannel = 0;
 
     bool isPlaying;
+    bool isSeek = 0;
 
 };
 
