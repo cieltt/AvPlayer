@@ -1,6 +1,7 @@
 package com.example.ciel.AvPlayer;
 
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.SurfaceView;
@@ -28,7 +29,6 @@ public class PlayActivity extends RxAppCompatActivity implements SeekBar.OnSeekB
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager
                 .LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_play);
@@ -53,6 +53,7 @@ public class PlayActivity extends RxAppCompatActivity implements SeekBar.OnSeekB
                         }
                     });
                 }
+
                 dnPlayer.start();
             }
         });

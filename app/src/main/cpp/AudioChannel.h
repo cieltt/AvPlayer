@@ -51,7 +51,7 @@ private:
     //播放器
     SLObjectItf bqPlayerObject = NULL;
     SLPlayItf bqPlayerInterface = NULL;
-    SLAndroidSimpleBufferQueueItf bqPlayerBufferQueue = NULL;
+    SLAndroidSimpleBufferQueueItf bqPlayerBufferQueueItf = NULL;
 
 
     SwrContext *swr_ctx = NULL;

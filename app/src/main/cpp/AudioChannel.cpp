@@ -186,13 +186,13 @@ void AudioChannel::initOpenSL() {
 
 //    获得播放器接口
     (*bqPlayerObject)->GetInterface(bqPlayerObject, SL_IID_BUFFERQUEUE,
-                                    &bqPlayerBufferQueue);
+                                    &bqPlayerBufferQueueItf);
     //设置回调
-    (*bqPlayerBufferQueue)->RegisterCallback(bqPlayerBufferQueue, bqPlayerCallback, this);
+    (*bqPlayerBufferQueueItf)->RegisterCallback(bqPlayerBufferQueueItf, bqPlayerCallback, this);
 //    设置播放状态
     (*bqPlayerInterface)->SetPlayState(bqPlayerInterface, SL_PLAYSTATE_PLAYING);
 
-    bqPlayerCallback(bqPlayerBufferQueue, this);
+    bqPlayerCallback(bqPlayerBufferQueueItf, this);
 }
 
 
@@ -207,7 +207,7 @@ int AudioChannel::getPcm() {
         if (!ret) {
             continue;
         }
-        // 计算转换后的sample个数  类似 a * b / c
+        // 计算转换后的sample个数  类似 a * b / c  1044800
         // swr_get_delay： 延迟时间:  输入了10个 数据，可能这次转换只转换了8个数据，那么还剩余2个 这一个函数就是得到上一次剩余的这个2
         // av_rescale_rnd： 以3为单位的1 转为以2为单位
         // 10个2=20
@@ -218,11 +218,14 @@ int AudioChannel::getPcm() {
                 out_sample_rate,
                 frame->sample_rate,
                 AV_ROUND_UP);
-        // 转换，返回值为转换后的sample个数
+        // 转换，返回值为转换后的sample个数,data是个数组名，且data是个指针数组，所以data->指向第一层数组中的元素uint8 的指针，数组元素在指向 uint8
         int nb = swr_convert(swr_ctx, &buffer, dst_nb_samples,
                              (const uint8_t **) frame->data, frame->nb_samples);
-        //转换后多少数据
+        LOGE("dst_nb_samples: %lu,nb :%d",dst_nb_samples,nb);
+        //转换后多少字节数据
         data_size = nb * out_channels * out_samplesize;
+//        timestamp(ffmpeg内部时间戳) = AV_TIME_BASE * time(秒)
+//        time(秒) = AV_TIME_BASE_Q * timestamp(ffmpeg内部时间戳)
         //音频的时间
         clock = frame->best_effort_timestamp * av_q2d(time_base);
         if (javaCallHelper) {
@@ -244,7 +247,7 @@ void AudioChannel::releaseOpenSL() {
     if (bqPlayerObject) {
         (*bqPlayerObject)->Destroy(bqPlayerObject);
         bqPlayerObject = 0;
-        bqPlayerBufferQueue = 0;
+        bqPlayerBufferQueueItf = 0;
     }
     //销毁混音器
     if (outputMixObject) {
